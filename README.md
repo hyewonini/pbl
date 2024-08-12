@@ -8,7 +8,6 @@
   - [채팅 엔티티 클래스 구현](https://kchabin.notion.site/rag-b437a7143dfd4a9d9b4d024093ca7f5c?pvs=4)
   - [rag 문서 업로드 방식](https://kchabin.notion.site/rag-b437a7143dfd4a9d9b4d024093ca7f5c?pvs=4)
 
-\n
 - Frontend : React, JavaScript, Streamlit(test용)
 
 ### 서비스 구성도 
