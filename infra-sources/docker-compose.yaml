@@ -1,7 +1,8 @@
-version: '3.7'
+version: '3.9'
 services:
   mysql:
     image: mysql:latest
+    platform: linux/arm64
     restart: always
     volumes:
       - ./db/mysql/data:/var/lib/mysql
@@ -11,6 +12,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       TZ: Asia/Seoul
-      MYSQL_DATABASE: myDb
-      MYSQL_USER: swu
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: test
       MYSQL_PASSWORD: 1234
+
