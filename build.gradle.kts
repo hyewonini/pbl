@@ -1,5 +1,6 @@
-
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 
 plugins {
 	kotlin("jvm") version "1.9.24"
@@ -20,9 +21,7 @@ group = "swu.pbl"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -46,15 +45,33 @@ dependencies {
 	implementation("javax.servlet:javax.servlet-api:4.0.1")
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
 
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	runtimeOnly ("com.h2database:h2")
+
+	//spring security
+	implementation("org.springframework.boot:spring-boot-starter-security")
+
+	//JWT
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+	//Redis
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+
+	// Map Struct
+	implementation ("org.mapstruct:mapstruct:1.5.3.Final")
+	annotationProcessor ("org.mapstruct:mapstruct-processor:1.5.3.Final")
+
 }
 
-kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll("-Xjsr305=strict")
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		freeCompilerArgs += "-Xjsr305=strict"
+		jvmTarget = "17"
 	}
 }
 
@@ -72,7 +89,7 @@ task<GenerateTask>("generateApiDoc") {
 task<GenerateTask>("generateApiServer") {
 	generatorName.set("kotlin-spring")
 	inputSpec.set("$projectDir/src/main/resources/openapi/test-api.yaml")
-//	inputSpec.set("$projectDir/src/main/resources/openapi/petstore.yaml")
+
 	outputDir.set("$buildDir/openapi/server-code/")
 	apiPackage.set("swu.pbl.ppap.openapi.generated.controller")
 	modelPackage.set("swu.pbl.ppap.openapi.generated.model")
@@ -84,7 +101,10 @@ task<GenerateTask>("generateApiServer") {
 
 	additionalProperties.set(
 		mapOf(
-			"useTags" to "true"
+			"useTags" to "true",
+			"jakarta" to "true",
+			"enumPropertyNaming" to "UPPERCASE"
+
 		)
 	)
 

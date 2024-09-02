@@ -1,5 +1,6 @@
 package swu.pbl.ppap.auth.user.controller
 
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,6 +11,7 @@ import swu.pbl.ppap.auth.user.repository.UserRepository
 import swu.pbl.ppap.auth.user.service.UserService
 import swu.pbl.ppap.openapi.generated.controller.UsersApi
 import swu.pbl.ppap.openapi.generated.model.User
+import swu.pbl.ppap.openapi.generated.model.UserToken
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,8 +22,12 @@ class UserController(
 
     @PostMapping("/signup")
     override fun createUser(@RequestBody user: User): ResponseEntity<User> {
-        val createdUserEntity = userService.signup(user)
-        val createdUser = userService.convertToUser(createdUserEntity)
+        val createdUser= userService.signup(user)
         return ResponseEntity.ok(createdUser)
     }
+
+//    @PostMapping("/login")
+//    override fun userLogin(@RequestBody user: User): ResponseEntity<UserToken> {
+//
+//    }
 }

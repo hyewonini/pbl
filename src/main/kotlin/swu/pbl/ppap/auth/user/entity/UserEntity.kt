@@ -2,8 +2,17 @@ package swu.pbl.ppap.auth.user.entity
 
 import jakarta.persistence.*
 import swu.pbl.ppap.openapi.generated.model.User
+import jakarta.validation.constraints.NotBlank
 
 @Entity
+@Table(
+    //테이블에 고유 제약 조건 추가
+    //특정 컬럼의 값이 테이블 내에서 중복되지 않도록 보장함.
+    // 로그인 id 중복 방지
+    uniqueConstraints = [
+        UniqueConstraint(name = "uk_login_id", columnNames = ["loginId"])
+    ]
+)
 class UserEntity(
 
     @Id
@@ -11,6 +20,7 @@ class UserEntity(
     var userId: Long? = null, //PK
 
     @Column(nullable = false, length = 30, updatable = false)
+    @field:NotBlank
     val loginId: String,
 
     @Column(nullable = false, length = 100)
@@ -25,7 +35,7 @@ class UserEntity(
     @Column(nullable = false, length = 30)
     val email: String,
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 100)
     @Enumerated(EnumType.STRING)
     val userType: User.UserType, //UserType enum. 개인/법인 구분
 
@@ -33,4 +43,11 @@ class UserEntity(
     val isActive: Boolean = true,
     @Column(nullable = false)
     val isWithdrawed: Boolean = false
-)
+){
+
+    //Lazy 로딩 설정
+    //UserRole의 userEntity 필드가 양방향 관계의 주인.
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userEntity", cascade = [(CascadeType.ALL)], orphanRemoval = true)
+    val userRole: List<UserRole> = mutableListOf() //기본적으로 빈 리스트로 초기화, NPE 발생 가능성을 줄임
+}
+

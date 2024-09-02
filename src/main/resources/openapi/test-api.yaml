@@ -40,11 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized Error
+                $ref: "#/components/schemas/StatusCode"
   /api/users/signup:
     post:
       tags:
@@ -70,12 +66,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid user data provided
-                    
+                $ref: "#/components/schemas/StatusCode"
   /api/users/login:
     post:
       tags:
@@ -88,7 +79,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/LoginDto'
       responses:
         '200':
           description: 로그인 성공
@@ -101,11 +92,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid user data provided
+                $ref: "#/components/schemas/StatusCode"
   /api/users/logout:
     post:
       tags:
@@ -121,31 +108,50 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successfully logged out
+                $ref: "#/components/schemas/StatusCode"
+
         '401':
           description: 인증되지 않음
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized access
+                $ref: "#/components/schemas/StatusCode"
         '500':
           description: 서버 오류로 인해 로그아웃 실패
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Internal server error
+                $ref: "#/components/schemas/StatusCode"
+  /api/users/token/refresh:
+    post:
+      tags:
+        - users
+      summary: 토큰 재발급
+      description: refresh token으로 access token 재발급 받기
+      operationId: getNewToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserToken'
+        '400':
+          description: 조회 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusCode"
+        '401':
+          description: Access token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusCode"
+
+
                     
   /api/users/info:
     get:
@@ -167,22 +173,14 @@ paths:
           description: 조회 실패
           content:
             application/json:
-              schema: 
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid user data provided
+              schema:
+                $ref: "#/components/schemas/StatusCode"
         '401':
           description: Access token is missing or invalid
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized Error
+                $ref: "#/components/schemas/StatusCode"
     put:
       tags:
         - users
@@ -208,21 +206,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid user data provided
+                $ref: "#/components/schemas/StatusCode"
         '401':
           description: Access token is missing or invalid
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized Error
+                $ref: "#/components/schemas/StatusCode"
     delete:
       tags:
         - users
@@ -243,21 +233,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid user data provided
+                $ref: "#/components/schemas/StatusCode"
         '401':
           description: 인증되지 않음 - 액세스 토큰이 없거나 유효하지 않음
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Unauthorized access
+                $ref: "#/components/schemas/StatusCode"
 
       
 components:
@@ -278,6 +260,7 @@ components:
       title: User Aggregate
       description: user info
       type: object
+      #x-class-extra-annotation: "@jakarta.persistence.Entity"
       required: 
         - loginId
         - username
@@ -290,6 +273,7 @@ components:
           type: integer
           format: int64
           description: user 테이블 pk
+          #x-field-extra-annotation: "@jakarta.persistence.Id"
         loginId:
           type: string
           description: 사용자 아이디
@@ -299,6 +283,8 @@ components:
         password:
           type: string
           description: 사용자 비밀번호
+          #pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#\$%^&*])[a-zA-Z0-9!@#\$%^&*]{8,20}$'
+          #example: "Passw0rd!"
         confirmPassword: 
           type: string
           description: 사용자 비밀번호 확인
@@ -315,18 +301,33 @@ components:
           default: false
         userType:
           type: string
+          description: 개인 or 법인 사용자 타입
           enum:
-            - INDI
-            - CORP
-
+            - PRIVATE
+            - BUSINESS
+          #x-constraints: "@ValidType"
         audit:
           $ref: '#/components/schemas/Audit'
+    LoginDto:
+      type: object
+      description: 사용자 로그인 dto
+      required:
+        - loginId
+        - password
+      properties:
+        loginId:
+          type: string
+        password:
+          type: string
+
     UserToken:
       type: object
       description: 사용자 json web token
       required:
         - accessToken
         - refreshToken
+        - grantType
+        - userId
       properties:
         accessToken:
           type: string
@@ -334,6 +335,18 @@ components:
         refreshToken:
           type: string
           description: refresh token
+        grantType:
+          type: string
+          description: jwt 인증타입 bearer
+        loginId:
+          type: string
+          description: 사용자 로그인 아이디
+
+    Role:
+      type: string
+      description: 회원가입 시 권한
+      enum:
+        - USER
     Audit:
       type: object
       properties:
@@ -351,6 +364,23 @@ components:
         modifiedBy:
           type: string
           description: 수정자
+    StatusCode:
+      type: object
+      properties:
+        '200':
+          type: string
+          example:
+        '400':
+          type: string
+          example: Invalid user data provided
+        '401':
+          type: string
+          example: Unauthorized access
+        '500':
+          type: string
+          example: Internal server error
+
+
    
       
   securitySchemes:
