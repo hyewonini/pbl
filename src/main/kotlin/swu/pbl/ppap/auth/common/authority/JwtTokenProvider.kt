@@ -96,6 +96,7 @@ class JwtTokenProvider {
                 .signWith(accessKey)
                 .compact()
 
+            //새로운 refresh token 발급
             val newRefreshToken = Jwts.builder()
                 .subject(refreshClaims.subject)
                 .claim("auth", refreshClaims["auth"])

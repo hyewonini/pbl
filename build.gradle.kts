@@ -17,6 +17,9 @@ allOpen {
 	annotation("jakarta.persistence.Embeddable")
 	annotation("jakarta.persistence.MappedSuperclass")
 }
+noArg {
+	annotation("jakarta.persistence.Entity")
+}
 group = "swu.pbl"
 version = "0.0.1-SNAPSHOT"
 
@@ -26,6 +29,7 @@ java {
 
 repositories {
 	mavenCentral()
+
 }
 
 dependencies {
@@ -65,6 +69,9 @@ dependencies {
 	// Map Struct
 	implementation ("org.mapstruct:mapstruct:1.5.3.Final")
 	annotationProcessor ("org.mapstruct:mapstruct-processor:1.5.3.Final")
+
+	//kassava
+	implementation("au.com.console:kassava:2.1.0-rc.1")
 
 }
 

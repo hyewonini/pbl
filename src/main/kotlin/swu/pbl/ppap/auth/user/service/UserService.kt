@@ -1,14 +1,19 @@
 package swu.pbl.ppap.auth.user.service
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import swu.pbl.ppap.auth.common.authority.JwtTokenProvider
 import swu.pbl.ppap.auth.user.entity.UserEntity
 import swu.pbl.ppap.auth.user.entity.UserRole
 import swu.pbl.ppap.auth.user.repository.UserRepository
 import swu.pbl.ppap.auth.user.repository.UserRoleRepository
+import swu.pbl.ppap.openapi.generated.model.LoginDto
 import swu.pbl.ppap.openapi.generated.model.Role
 import swu.pbl.ppap.openapi.generated.model.User
+import swu.pbl.ppap.openapi.generated.model.UserToken
 
 
 @Service
@@ -16,6 +21,10 @@ class UserService(
     private val userRepository: UserRepository,
     private val userRoleRepository: UserRoleRepository,
     private val passwordEncoder: PasswordEncoder,
+
+    //로그인 구현 시 추가
+    private val authenticationManagerBuilder: AuthenticationManagerBuilder,
+    private val jwtTokenProvider: JwtTokenProvider
 ) {
 
     // 회원가입
@@ -60,7 +69,7 @@ class UserService(
         userRoleRepository.save(userRole)
     }
 
-    // User -> UserEntity
+    // User -> UserEntity(JPA객체)
     fun convertToUserEntity(user: User, encodedPassword: String): UserEntity {
         return UserEntity(
             loginId = user.loginId,
@@ -87,6 +96,15 @@ class UserService(
             isWithdrawed = userEntity.isWithdrawed,
             userType = userEntity.userType
         )
+    }
+
+    fun login(loginDto: LoginDto): UserToken {
+        val authenticationToken =
+            UsernamePasswordAuthenticationToken(loginDto.loginId, loginDto.password)
+        val authentication =
+            authenticationManagerBuilder.`object`.authenticate(authenticationToken)
+
+        return jwtTokenProvider.createToken(authentication)
     }
 
 

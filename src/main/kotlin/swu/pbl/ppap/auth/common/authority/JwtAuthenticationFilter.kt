@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils
 import org.springframework.web.filter.GenericFilterBean
 
 //jwt 인증을 위해 UsernamePasswordAuthenticationFilter 이전에 실행되는 Custom Filter.
-//이 필터를 통과하면 Username~ Filter는 자동으로 통과하게 된다.
+//이 필터를 통과하면 UsernamePasswordAuthenticationFilter는 자동으로 통과하게 된다.
 class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider
 ) : GenericFilterBean() {
