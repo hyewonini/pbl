@@ -48,6 +48,8 @@ class UserEntity(
     //Lazy 로딩 설정
     //UserRole의 userEntity 필드가 양방향 관계의 주인.
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userEntity", cascade = [(CascadeType.ALL)], orphanRemoval = true)
-    val userRole: List<UserRole> = mutableListOf() //기본적으로 빈 리스트로 초기화, NPE 발생 가능성을 줄임
+    protected val mutableUserRole: MutableList<UserRole> = mutableListOf() //기본적으로 빈 리스트로 초기화, NPE 발생 가능성을 줄임
+    val userRole: List<UserRole> get() = mutableUserRole.toList() //데이터를 외부에서 접근해 변경하지 못하도록 함.
+
 }
 

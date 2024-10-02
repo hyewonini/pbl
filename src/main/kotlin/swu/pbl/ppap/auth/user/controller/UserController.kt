@@ -10,6 +10,8 @@ import swu.pbl.ppap.auth.user.entity.UserEntity
 import swu.pbl.ppap.auth.user.repository.UserRepository
 import swu.pbl.ppap.auth.user.service.UserService
 import swu.pbl.ppap.openapi.generated.controller.UsersApi
+import swu.pbl.ppap.openapi.generated.model.GetNewTokenRequest
+import swu.pbl.ppap.openapi.generated.model.LoginDto
 import swu.pbl.ppap.openapi.generated.model.User
 import swu.pbl.ppap.openapi.generated.model.UserToken
 
@@ -26,8 +28,19 @@ class UserController(
         return ResponseEntity.ok(createdUser)
     }
 
-//    @PostMapping("/login")
-//    override fun userLogin(@RequestBody user: User): ResponseEntity<UserToken> {
-//
-//    }
+    @PostMapping("/login")
+    override fun userLogin(@RequestBody loginDto: LoginDto): ResponseEntity<UserToken> {
+        val userToken = userService.login(loginDto)
+        return ResponseEntity.ok(userToken)
+    }
+
+    @PostMapping("/token/refresh")
+    override fun getNewToken(@RequestBody getNewTokenRequest: GetNewTokenRequest): ResponseEntity<UserToken> {
+        val refreshToken = getNewTokenRequest.refreshToken
+        val loginId = getNewTokenRequest.loginId
+
+        val newToken = userService.getNewToken(refreshToken, loginId)
+        return ResponseEntity.ok(newToken)
+    }
+
 }

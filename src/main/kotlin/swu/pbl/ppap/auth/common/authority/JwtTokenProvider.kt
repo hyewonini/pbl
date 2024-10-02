@@ -5,39 +5,55 @@ package swu.pbl.ppap.auth.common.authority
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
+import swu.pbl.ppap.openapi.generated.model.User
 import swu.pbl.ppap.openapi.generated.model.UserToken
 import java.util.Date
 import javax.crypto.SecretKey
 
 
 const val ACCESS_EXPIRATION_TIME: Long = 1000 * 60 * 30 //1시간
-const val REFRESH_EXPIRATION_TIME: Long = 1000 * 60 * 60
+const val REFRESH_EXPIRATION_TIME: Long = 1000 * 60 * 60 //2시간
 
 @Component
 class JwtTokenProvider {
 
     @Value("\${spring.jwt.access-secret}")
-    lateinit var accessSecret: String
+    private lateinit var accessSecret: String
 
     @Value("\${spring.jwt.refresh-secret}")
-    lateinit var refreshSecret: String
+    private lateinit var refreshSecret: String
 
-    final fun getSigningAccessKey(): SecretKey{
+    private lateinit var accessKey: SecretKey
+    private lateinit var refreshKey: SecretKey
+
+    @PostConstruct
+    fun init() {
+
+        if (accessSecret.isBlank() || refreshSecret.isBlank()) {
+            throw IllegalArgumentException("Access secret or refresh secret must be set")
+        }
+        accessKey = getSigningAccessKey()
+        refreshKey = getSigningRefreshKey()
+    }
+
+    private fun getSigningAccessKey(): SecretKey{
         var accessKeyBytes: ByteArray? = Decoders.BASE64.decode(accessSecret)
         return Keys.hmacShaKeyFor(accessKeyBytes)
     }
-    final fun getSigningRefreshKey(): SecretKey{
+    private fun getSigningRefreshKey(): SecretKey{
         var refreshKeyBytes: ByteArray? = Decoders.BASE64.decode(refreshSecret)
         return Keys.hmacShaKeyFor(refreshKeyBytes)
     }
-    private val accessKey: SecretKey = getSigningAccessKey()
-    private val refreshKey: SecretKey = getSigningRefreshKey()
+
+
+
 
 
     //token 생성
@@ -64,12 +80,13 @@ class JwtTokenProvider {
             .expiration(refreshExpiration)
             .signWith(refreshKey)
             .compact()
-
-        return UserToken("Bearer", accessToken,  refreshToken)
+        //생성자 파라미터를 잘못 전달함
+        //return UserToken("Bearer", accessToken,  refreshToken)
+        return UserToken(accessToken, refreshToken, "Bearer", loginId = authentication.name )
     }
 
     //token 정보 추출
-    fun getAuthentication(token: String): Authentication {
+    fun getAuthentication(token: String?): Authentication {
         val claims: Claims = getAccessTokenClaims(token)
         val auth = claims["auth"] ?: throw RuntimeException("Wrong Token")
 
@@ -84,10 +101,11 @@ class JwtTokenProvider {
 
     fun validateRefreshTokenAndCreateToken(refreshToken: String) : UserToken {
         try {
+            //사용자 정보 추출
             val refreshClaims: Claims = getRefreshTokenClaims(refreshToken)
             val now = Date()
 
-            //새로운 access token 발급
+            //claims에서 추출한 사용자 정보를 사용해 새로운 access token 발급
             val newAccessToken = Jwts.builder()
                 .subject(refreshClaims.subject)
                 .claim("auth", refreshClaims["auth"])
@@ -110,7 +128,8 @@ class JwtTokenProvider {
             throw e
         }
     }
-    fun validateAccessTokenForFilter(token: String) : Boolean {
+    //
+    fun validateAccessTokenForFilter(token: String?) : Boolean {
         try {
             getAccessTokenClaims(token)
             return true
@@ -126,14 +145,14 @@ class JwtTokenProvider {
             throw e
         }
     }
-    private fun getAccessTokenClaims(token: String): Claims =
+    fun getAccessTokenClaims(token: String?): Claims =
         Jwts.parser()
             .verifyWith(accessKey)
             .build()
             .parseSignedClaims(token)
             .payload
 
-    private fun getRefreshTokenClaims(token: String): Claims =
+    fun getRefreshTokenClaims(token: String): Claims =
         Jwts.parser()
             .verifyWith(refreshKey)
             .build()
