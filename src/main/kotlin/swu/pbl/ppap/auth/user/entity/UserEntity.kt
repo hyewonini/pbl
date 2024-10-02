@@ -43,6 +43,8 @@ class UserEntity(
     val isActive: Boolean = true,
     @Column(nullable = false)
     val isWithdrawed: Boolean = false
+
+    //TODO: Audit 구현
 ){
 
     //Lazy 로딩 설정

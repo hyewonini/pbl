@@ -338,7 +338,7 @@ components:
         - accessToken
         - refreshToken
         - grantType
-        - userId
+        - loginId
       properties:
         accessToken:
           type: string

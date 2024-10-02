@@ -1,7 +1,4 @@
 package swu.pbl.ppap.auth.common.authority
- 
-
-
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -123,7 +120,7 @@ class JwtTokenProvider {
                 .signWith(refreshKey)
                 .compact()
 
-            return UserToken("Bearer", newAccessToken,  newRefreshToken)
+            return UserToken("Bearer", newAccessToken,  newRefreshToken, loginId = refreshClaims.subject)
         } catch (e: Exception) {
             throw e
         }
