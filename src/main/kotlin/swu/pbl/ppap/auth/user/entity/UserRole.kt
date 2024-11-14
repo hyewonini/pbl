@@ -16,7 +16,7 @@ class UserRole(
 
     //user_id라는 외래 키 생성
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = ForeignKey(name = "fk_user_role_user_id"))
+    @JoinColumn(name = "user_id", foreignKey = ForeignKey(name = "fk_user_role_login_id"))
     val userEntity: UserEntity
 ) {
 }

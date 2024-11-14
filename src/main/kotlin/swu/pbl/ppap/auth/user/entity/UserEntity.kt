@@ -3,6 +3,7 @@ package swu.pbl.ppap.auth.user.entity
 import jakarta.persistence.*
 import swu.pbl.ppap.openapi.generated.model.User
 import jakarta.validation.constraints.NotBlank
+import swu.pbl.ppap.auth.audit.AuditEntity
 
 @Entity
 @Table(
@@ -45,7 +46,9 @@ class UserEntity(
     val isWithdrawed: Boolean = false
 
     //TODO: Audit 구현
-){
+
+
+) : AuditEntity(){
 
     //Lazy 로딩 설정
     //UserRole의 userEntity 필드가 양방향 관계의 주인.

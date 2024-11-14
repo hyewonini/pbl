@@ -19,6 +19,7 @@ allOpen {
 }
 noArg {
 	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.MappedSuperclass")
 }
 group = "swu.pbl"
 version = "0.0.1-SNAPSHOT"
