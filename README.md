@@ -7,7 +7,10 @@
   - [채팅 엔티티 클래스 구현](https://kchabin.notion.site/rag-b437a7143dfd4a9d9b4d024093ca7f5c?pvs=4)
   - [rag 문서 업로드 방식](https://kchabin.notion.site/rag-b437a7143dfd4a9d9b4d024093ca7f5c?pvs=4)
 - Frontend : React, JavaScript, Streamlit(test용)
+  - [프론트엔드 코드](https://github.com/yunziee/new-ppap)
 ![스크린샷 2024-08-12 오후 5 56 36](https://github.com/user-attachments/assets/eb85bfec-7156-43ac-b703-e8eb930b5593)
+
+
 
 ### 서비스 구성도 
 ![image](https://github.com/user-attachments/assets/fc6f15d5-4307-460d-a292-2663c5513bbc)
