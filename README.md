@@ -1,5 +1,11 @@
 # PBL
 한이음 및 서울여대 종단형 PBL 수업 졸업 프로젝트 
+
+[PPAP 코드 저장소 변경](https://github.com/kchabin/ppap.git)
+
+
+
+
 ### 개인정보처리방침 평가 프로그램의 개발
 - RAG를 활용한 개인정보처리방침 평가 어시스턴트 챗봇 개발
 - AI : ChatGPT API, LangChain, FAISS
